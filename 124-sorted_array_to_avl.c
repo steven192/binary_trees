@@ -1,60 +1,40 @@
 #include "binary_trees.h"
-
 /**
- * tree_builder - Builds an AVL tree from a sorted array.
- * @parent: The AVL tree's parent.
- * @array: The sorted array of integers.
- * @size: The length of the given array.
- *
- * Return: A pointer to the root of thhe AVL tree, otherwise NULL.
+ * aux_sort - create the tree using the half element of the array
+ * @parent: parent of the node to create
+ * @array: sorted array
+ * @begin: position where the array starts
+ * @last: position where the array ends
+ * Return: tree created
  */
-avl_t *tree_builder(avl_t *parent, int *array, int size)
+avl_t *aux_sort(avl_t *parent, int *array, int begin, int last)
 {
-	int *array_l = NULL, *array_r = NULL;
-	int size_l = 0, size_r = 0, len = 0;
-	avl_t *p = NULL, *l = NULL, *r = NULL;
+	avl_t *root;
+	binary_tree_t *aux;
+	int mid = 0;
 
-	if ((size > 0) && (array != NULL))
+	if (begin <= last)
 	{
-		p = malloc(sizeof(avl_t));
-		if (p != NULL)
-		{
-			len = size - 1;
-			size_l = (len / 2);
-			size_r = len - (len / 2);
-			if (size_l > 0)
-			{
-				array_l = array;
-				l = tree_builder(p, array_l, size_l);
-			}
-			if (size_r > 0)
-			{
-				array_r = array + size_l + 1;
-				r = tree_builder(p, array_r, size_r);
-			}
-			p->parent = parent;
-			p->left = l;
-			p->right = r;
-			p->n = *(array + (size / 2) - (size % 2 == 0 ? 1 : 0));
-		}
+		mid = (begin + last) / 2;
+		aux = binary_tree_node((binary_tree_t *)parent, array[mid]);
+		if (aux == NULL)
+			return (NULL);
+		root = (avl_t *)aux;
+		root->left = aux_sort(root, array, begin, mid - 1);
+		root->right = aux_sort(root, array, mid + 1, last);
+		return (root);
 	}
-	return (p);
+	return (NULL);
 }
-
 /**
- * sorted_array_to_avl - Builds an AVL tree from a sorted array.
- * @array: The sorted array of integers.
- * @size: The length of the given array.
- *
- * Return: A pointer to the root of thhe AVL tree, otherwise NULL.
+ * sorted_array_to_avl - create a alv tree from sorted array
+ * @array: sorted array
+ * @size: size of the sorted array
+ * Return: alv tree form sorted array
  */
 avl_t *sorted_array_to_avl(int *array, size_t size)
 {
-	avl_t *root = NULL;
-
-	if (array != NULL)
-	{
-		root = tree_builder(root, array, (int)size);
-	}
-	return (root);
+	if (array == NULL || size == 0)
+		return (NULL);
+	return (aux_sort(NULL, array, 0, ((int)(size)) - 1));
 }
